@@ -1,35 +1,29 @@
 
 from django.urls import path
-from .views import LaptopListView, LaptopCreateView, LaptopUpdateView, LaptopDeleteView, AddProductView
-from .views import MobileListView, MobileCreateView, MobileDeleteView, MobileUpdateView, homeview
-from .views import GroceryListView, GroceryCreateView, GroceryUpdateView, GroceryDeleteView
+
 from . import views
 
 urlpatterns = [
-    path('', homeview, name='home'),
+    path('sellerhome/',views.seller_home, name='sellerhome'),
+    path('customer_to_seller_home/', views.customer_to_seller_home, name='customer_to_seller_home'),
 
-    path('addproduct/', AddProductView, name='addproduct'),
+    path('addproduct/', views.add_product_view, name='addproduct'),
 
-    path('lcreate/', LaptopCreateView.as_view(), name='lcreate'),
-    path('cfl/', views.createFakeLaptop, name='cfl'),
+    path('createlaptop/', views.add_laptop, name='createlaptop'),
+    path('cfl/', views.create_fake_laptop, name='cfl'),
+    path('updatelaptop/<int:id>', views.update_laptop, name='updatelaptop'),
+    path('deletelaptop/<int:id>', views.delete_laptop, name='deletelaptop'),
 
-    path('lshow/', LaptopListView.as_view(), name='lshow'),
-    path('lupdate/<int:pk>', LaptopUpdateView.as_view(), name='lupdate'),
-    path('ldelete/<int:pk>', LaptopDeleteView.as_view(), name='ldelete'),
+    path('createmobile/', views.add_mobile, name='createmobile'),
+    path('cfm/', views.create_fake_mobile, name='cfm'),
+    path('updatemobile/<int:id>', views.update_mobile, name='updatemobile'),
+    path('deletemobile/<int:id>', views.delete_mobile, name='deletemobile'),
 
-    # path('showlaptop', views.showlaptops, name='showlaptop'),
+    path('creategrocery/', views.add_grocery, name='creategrocery'),
+    path('cfg/', views.create_fake_grocery, name='cfg'),
+    path('updategrocery/<int:id>', views.update_grocery, name='updategrocery'),
+    path('deletegrocery/<int:id>', views.delete_grocery, name='deletegrocery'),
 
-    path('mcreate/', MobileCreateView.as_view(), name='mcreate'),
-    path('cfm/', views.createFakeMobile, name='cfm'),
+    path('showallproducts/', views.show_all_products, name='showallproducts'),
 
-    path('mshow/', MobileListView.as_view(), name='mshow'),
-    path('mupdate/<int:pk>', MobileUpdateView.as_view(), name='mupdate'),
-    path('mdelete/<int:pk>', MobileDeleteView.as_view(), name='mdelete'),
-
-    path('gcreate/', GroceryCreateView.as_view(), name='gcreate'),
-    path('cfg/', views.createFakeGrocery, name='cfg'),
-
-    path('gshow/', GroceryListView.as_view(), name='gshow'),
-    path('gupdate/<int:pk>', GroceryUpdateView.as_view(), name='gupdate'),
-    path('gdelete/<int:pk>', GroceryDeleteView.as_view(), name='gdelete'),
 ]

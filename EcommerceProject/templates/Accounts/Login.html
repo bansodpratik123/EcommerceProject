@@ -45,6 +45,12 @@
 				</div>
 				<br>
 				<br>
+				{% if messages %}
+                	{% for i in messages %}
+				<p style="color:red;">{{i}}</p>
+                	{% endfor %}
+            	{% endif %}
+				<br>
 				<div class="group">
 					<input type="submit" class="button" value="Sign In">
 				</div>

@@ -3,42 +3,55 @@ from django.http import HttpResponse
 from .models import Laptop, Mobile, Grocery
 from django.views.generic.list import ListView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
+from .forms import MobileModelForm, GroceryModelForm, LaptopModelForm
 from django.urls import reverse_lazy
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 from Accounts.models import CustomUser, Seller
 from faker import Faker
-
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth import logout
 
 
 # Create your views here.
-def homeview(request):
-    template_name='Accounts/home.html'
-    Laptops=Laptop.objects.all()
-    Mobiles=Mobile.objects.all()
-    Groceries=Grocery.objects.all()
+def customer_to_seller_home(request):
+    logout(request)
+    return redirect('sellerhome')
 
-    context={'Laptops':Laptops, 'Mobiles':Mobiles, 'Groceries':Groceries}
+def seller_home(request):
+    template_name='Seller/Seller_Home.html'
+    context={}
     return render(request,template_name,context)
 
-# CRUD for SELLER-LAPTOP
-class LaptopListView(ListView):
-    model = Laptop
 
-def AddProductView(request):
+def add_product_view(request):
     return render(request, 'Seller/AddProduct.html',{} )
 
 
-class LaptopCreateView(CreateView):
-    model = Laptop
-    fields = '__all__'
-    success_url = reverse_lazy('lshow')
+# class LaptopCreateView(CreateView):
+#     model = Laptop
+#     fields = '__all__'
+#     success_url = reverse_lazy('lshow')
+
+@login_required(login_url='sellerlogin')
+def add_laptop(request):
+    form = LaptopModelForm()
+    if request.method == 'POST':
+        form = LaptopModelForm(request.POST)
+        if form.is_valid():
+            seller_user = Seller.objects.get(user=request.user)
+            print(seller_user)
+            object = form.save(commit=False)
+            object.seller = seller_user
+            object.save()
+            return redirect('showallproducts')
+    template_name='Seller/Laptop_form.html'
+    context={'form':form}
+    return render(request, template_name, context)
 
 
-def createFakeLaptop(request):
-    # if request.method=='POST':
-        # no=int(request.POST.get('no'))
-        # print(type(no))
+def create_fake_laptop(request):
+
         all_user = Seller.objects.all()
         SELLER = []
         for i in all_user:
@@ -66,34 +79,49 @@ def createFakeLaptop(request):
             se=fake.random_element(SELLER)
             so=fake.random_number(digits=2)
             Laptop.objects.create(seller=se, name=m,brand_name=b, RAM=ra, ROM=ro, processor=pr, OS=os, warranty=w, price=p, stock=so)
-        return redirect('lshow')
+        return redirect('showallproducts')
 
         return HttpResponse('DAta created')
 
-class LaptopUpdateView(UpdateView):
-    model = Laptop
-    fields = '__all__'
-    success_url = reverse_lazy('lshow')
+@login_required(login_url='sellerlogin')
+def update_laptop(request, id):
+    record = Laptop.objects.get(id=id)
+    form = LaptopModelForm(instance=record)
+    if request.method == 'POST':
+        form = LaptopModelForm(request.POST, instance=record)
+        if form.is_valid():
+            form.save()
+            return redirect('showallproducts')
+    template_name = 'Seller/Laptop_form.html'
+    context = {'form': form}
+    return render(request, template_name, context)
 
-class LaptopDeleteView(DeleteView):
-    model = Laptop
-    success_url = reverse_lazy('lshow')
+@login_required(login_url='sellerlogin')
+def delete_laptop(request,id):
+    record = Laptop.objects.get(id=id)
+    record.delete()
+    return redirect('showallproducts')
 
 
-# CRUD for SELLER-MOBILE
-class MobileListView(ListView):
-    model = Mobile
+@login_required(login_url='sellerlogin')
+def add_mobile(request):
+    form = MobileModelForm()
+    if request.method == 'POST':
+        form = MobileModelForm(request.POST)
+        if form.is_valid():
+            seller_user = Seller.objects.get(user=request.user)
+            print(seller_user)
+            object = form.save(commit=False)
+            object.seller = seller_user
+            object.save()
+            return redirect('showallproducts')
+    template_name='Seller/Mobile_form.html'
+    context={'form':form}
+    return render(request, template_name, context)
 
-class MobileCreateView(CreateView):
-    model = Mobile
-    fields = '__all__'
-    success_url = reverse_lazy('mshow')
 
+def create_fake_mobile(request):
 
-def createFakeMobile(request):
-    # if request.method=='POST':
-        # no=int(request.POST.get('no'))
-        # print(type(no))
         all_user = Seller.objects.all()
         SELLER = []
         for i in all_user:
@@ -120,36 +148,52 @@ def createFakeMobile(request):
             s = fake.random_element(SELLER)
             so = fake.random_number(digits=2)
             Mobile.objects.create(seller=s,name=m,brand_name=b, RAM=ra, ROM=ro, processor=pr, warranty=w, price=p, stock=so)
-        return redirect('mshow')
+        return redirect('showallproducts')
 
         return HttpResponse('DAta created')
 
 
+@login_required(login_url='sellerlogin')
+def update_mobile(request, id):
+    print('ID=',id)
+    record = Mobile.objects.get(id=id)
+
+    form = MobileModelForm(instance=record)
+    if request.method == 'POST':
+        form = MobileModelForm(request.POST, instance=record)
+        if form.is_valid():
+            form.save()
+            return redirect('showallproducts')
+    template_name = 'Seller/Mobile_form.html'
+    context = {'form': form}
+    return render(request, template_name, context)
+
+@login_required(login_url='sellerlogin')
+def delete_mobile(request,id):
+    record = Mobile.objects.get(id=id)
+    record.delete()
+    return redirect('showallproducts')
 
 
-class MobileUpdateView(UpdateView):
-    model = Mobile
-    fields = '__all__'
-    success_url = reverse_lazy('mshow')
+# CRUD for GROCERY
+@login_required(login_url='sellerlogin')
+def add_grocery(request):
+    form = GroceryModelForm()
+    if request.method == 'POST':
+        form = GroceryModelForm(request.POST)
+        if form.is_valid():
+            seller_user = Seller.objects.get(user=request.user)
+            print(seller_user)
+            object = form.save(commit=False)
+            object.seller = seller_user
+            object.save()
+            return redirect('showallproducts')
+    template_name='Seller/Grocery_form.html'
+    context={'form':form}
+    return render(request, template_name, context)
 
-class MobileDeleteView(DeleteView):
-    model = Mobile
-    success_url = reverse_lazy('mshow')
+def create_fake_grocery(request):
 
-
-# CRUD for SELLER-GROCERY
-class GroceryListView(ListView):
-    model = Grocery
-
-class GroceryCreateView(CreateView):
-    model = Grocery
-    fields = '__all__'
-    success_url = reverse_lazy('gshow')
-
-def createFakeGrocery(request):
-    # if request.method=='POST':
-        # no=int(request.POST.get('no'))
-        # print(type(no))
         user=request.user
         print(' Seller User for fake data:', user.id)
         all_user=Seller.objects.all()
@@ -170,17 +214,40 @@ def createFakeGrocery(request):
             w = fake.random_element(WARRANTY)
             s = fake.random_element(SELLER)
             Grocery.objects.create(seller=s, product_name=n,quantity=q, price=p, warranty=w)
-        return redirect('gshow')
+        return redirect('showallproducts')
 
         return HttpResponse('DAta created')
 
-class GroceryUpdateView(UpdateView):
-    model = Grocery
-    fields = '__all__'
-    success_url = reverse_lazy('gshow')
+@login_required(login_url='sellerlogin')
+def update_grocery(request, id):
+    record = Grocery.objects.get(id=id)
+    form = GroceryModelForm(instance=record)
+    if request.method == 'POST':
+        form = GroceryModelForm(request.POST, instance=record)
+        if form.is_valid():
+            form.save()
+            return redirect('showallproducts')
+    template_name = 'Seller/Grocery_form.html'
+    context = {'form': form}
+    return render(request, template_name, context)
 
-class GroceryDeleteView(DeleteView):
-    model = Grocery
-    success_url = reverse_lazy('gshow')
+@login_required(login_url='sellerlogin')
+def delete_grocery(request,id):
+    record = Grocery.objects.get(id=id)
+    record.delete()
+    return redirect('showallproducts')
+
+
+# Show All Products added by Seller
+@login_required(login_url='sellerlogin')
+def show_all_products(request):
+    user = request.user
+    seller=Seller.objects.get(user=user)
+    laptop = Laptop.objects.filter(seller=seller)
+    mobile = Mobile.objects.filter(seller=seller)
+    grocery=Grocery.objects.filter(seller=seller)
+    context = {'laptop': laptop,'mobile': mobile,'grocery':grocery}
+    template_name = 'Seller/Show_All_Products.html'
+    return render(request, template_name, context)
 
 

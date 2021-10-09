@@ -66,9 +66,9 @@ def seller_loginview(request):
 
 def customer_logout_view(request):
     logout(request)
-    return redirect('customerlogin')
+    return redirect('home')
 
 
 def seller_logout_view(request):
     logout(request)
-    return redirect('sellerlogin')
+    return redirect('sellerhome')

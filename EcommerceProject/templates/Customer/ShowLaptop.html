@@ -1,5 +1,6 @@
-{% extends 'Accounts/Base.html' %}
+{% extends 'Customer/Customer_Base.html' %}
 {% load crispy_forms_tags %}
+{% load mobile %}
 
 {% block title %}
     <title>Laptops</title>
@@ -8,7 +9,27 @@
 {% block content %}
 
     <h1 style="text-align:center">Laptops</h1>
-    <hr>
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-2" style="margin-left:30px;">
+      <div class="card card-body" style="border:2px solid dodgerblue; border-radius: 5px; padding:20px 50px 20px 20px;">
+        <form method="get" >
+          <h1>search</h1>
+          {{laptopfilter.form}}
+
+<!--          {{mobilefilter.form.name.label}}-->
+<!--          {{mobilefilter.form.name}}-->
+<!--          <br><br>-->
+<!--          {{mobilefilter.form.brand_name}}-->
+
+          <br><br>
+          <button class="btn btn-primary" type="submit">Search</button>
+        </form>
+      </div>
+    </div>
+
+  <div class="col-9">
     {% for r in records %}
     <div class="card mb-3 container" style="max-width: 1200px;">
       <div class="row no-gutters">
@@ -35,7 +56,7 @@
 {% if records.has_other_pages %}
   <ul class="pagination">
     {% if records.has_previous %}
-      <li><a href="?page={{ records.previous_page_number }}">&laquo;</a></li>
+      <li><a href="{% relative_url records.previous_page_number 'page' request.GET.urlencode %}">&laquo;</a></li>
     {% else %}
       <li class="disabled"><span>&laquo;</span></li>
     {% endif %}
@@ -44,17 +65,17 @@
       {% if records.number == i %}
         <li class="active"><span>{{ i }} <span class="sr-only">(current)</span></span></li>
       {% else %}
-        <li><a href="?page={{ i }}">{{ i }}</a></li>
+        <li><a href="{% relative_url i 'page' request.GET.urlencode %}">{{ i }}</a></li>
       {% endif %}
     {% endfor %}
 
     {% if records.has_next %}
-      <li><a href="?page={{ records.next_page_number }}">&raquo;</a></li>
+      <li><a href="{% relative_url records.next_page_number 'page' request.GET.urlencode %}">&raquo;</a></li>
     {% else %}
       <li class="disabled"><span>&raquo;</span></li>
     {% endif %}
   </ul>
 {% endif %}
     </div>
-
+</div>
 {% endblock %}
